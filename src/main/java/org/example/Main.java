@@ -11,11 +11,12 @@ import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-
-
+import org.example.util.MyFlatMapFunction;
 import java.io.FileInputStream;
-
 import java.util.Properties;
+
+
+
 
 // Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
 // then press Enter. You can now see whitespace characters in your code.
@@ -43,8 +44,11 @@ public class Main {
                         .build();
         final DataStream<String> stream =
         env.fromSource(source, WatermarkStrategy.noWatermarks(), "file-source");
-        stream.print();
+        //stream.print();
+        stream.flatMap(new MyFlatMapFunction()).print();
+        //CloseableIterator<String> data = stream.executeAndCollect();//not used but we can iterate data
 
+        // Passing stream to kafka
         KafkaSink<String> sink = KafkaSink.<String>builder()
                 .setBootstrapServers(bootstarpServer)
                 .setRecordSerializer(KafkaRecordSerializationSchema.builder()
